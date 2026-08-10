@@ -1,0 +1,78 @@
+name: Deploy site
+
+# Builds the JupyterLite playground and publishes it alongside the static pages.
+# The build output is never committed: it is produced here and handed straight to
+# GitHub Pages, which keeps the repository small.
+#
+# This requires Pages to be served from Actions rather than from a branch:
+# Settings > Pages > Build and deployment > Source > GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          # Without this, the cache looks only for requirements.txt or
+          # pyproject.toml, finds neither, and fails the step.
+          cache-dependency-path: requirements-lite.txt
+
+      - name: Install the JupyterLite build tools
+        run: pip install -r requirements-lite.txt
+
+      - name: Assemble the static site
+        run: |
+          mkdir -p _site
+          # notebooks/ is kept: the page offers the raw .ipynb for download.
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '_site' \
+            --exclude 'requirements-lite.txt' \
+            ./ _site/
+
+      - name: Build JupyterLite
+        run: |
+          jupyter lite build \
+            --contents notebooks \
+            --output-dir _site/lite
+
+      - name: Drop source maps
+        # Roughly 49 MB of debug artifacts that browsers only fetch with devtools
+        # open. Removing them cuts the published site by about two thirds.
+        run: find _site/lite -name '*.map' -delete
+
+      - name: Report the published size
+        run: du -sh _site _site/lite
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

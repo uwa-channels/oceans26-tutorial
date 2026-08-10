@@ -1,0 +1,8 @@
+# The JupyterLite site is built in CI and published straight to Pages, so a local
+# build must never be committed. It runs to about 21 MB.
+/lite/
+/_site/
+.jupyterlite.doit.db
+
+# Jupyter checkpoints, created when the notebook is opened locally.
+.ipynb_checkpoints/
