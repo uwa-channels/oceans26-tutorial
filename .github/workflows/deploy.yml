@@ -5,7 +5,9 @@ name: Deploy site
 # GitHub Pages, which keeps the repository small.
 #
 # This requires Pages to be served from Actions rather than from a branch:
-# Settings > Pages > Build and deployment > Source > GitHub Actions.
+# Settings > Pages > Build and deployment > Source > GitHub Actions. With the
+# legacy branch source instead, Pages publishes the repository as committed, so
+# lite/ is absent and the in-browser notebook link returns 404.
 
 on:
   push:
