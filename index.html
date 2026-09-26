@@ -331,6 +331,30 @@
       color: var(--text-secondary);
     }
 
+    /* ── Slide viewer ── */
+    .slide-tabs { display: flex; gap: 8px; margin: 16px 0 10px; flex-wrap: wrap; }
+
+    .slide-tabs button {
+      font: inherit;
+      font-size: .9rem;
+      padding: 6px 16px;
+      border-radius: 4px;
+      border: 1px solid var(--primary);
+      background: #fff;
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .slide-tabs button[aria-selected="true"] { background: var(--primary); color: #fff; }
+
+    .slide-viewer {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: block;
+    }
+
     /* ── Footer ── */
     footer {
       background: #263238;
@@ -362,6 +386,8 @@
       nav a:last-child { margin-right: 0; }
       .materials-grid { grid-template-columns: 1fr; }
       .schedule-table .time { width: auto; }
+      /* Phone browsers do not render PDFs inline, so fall back to the links. */
+      .slide-tabs, .slide-viewer { display: none; }
     }
   </style>
 </head>
@@ -523,33 +549,26 @@
 <section id="materials">
   <div class="container">
     <h2>Materials</h2>
-    <p>All materials will be available here before and after the tutorial. Template scripts will be provided in both MATLAB and Python.</p>
-
     <div class="materials-grid">
-      <div class="material-card">
+      <div class="material-card" style="grid-column:1 / -1;">
         <h4>Slides</h4>
-        <p>Presentation slides for each module will be posted here before the tutorial.</p>
-        <!-- <p><a href="#">Download slides (PDF)</a></p> -->
-        <p><em>Coming soon</em></p>
-      </div>
-      <div class="material-card">
-        <h4>Template Scripts</h4>
-        <p>Hands-on exercise templates in MATLAB and Python for each module.</p>
-        <!-- <p><a href="#">Download templates (.zip)</a></p> -->
-        <p><em>Coming soon</em></p>
-      </div>
-      <div class="material-card">
-        <h4>Reference Solutions</h4>
-        <p>Complete solutions for all exercises, available during and after the tutorial.</p>
-        <!-- <p><a href="#">Download solutions (.zip)</a></p> -->
-        <p><em>Coming soon</em></p>
+        <p>The slides for the introduction and for Modules 1 to 5.</p>
+        <p>
+          <a href="assets/slides-introduction.pdf" target="_blank" rel="noopener">Introduction (PDF, 3.6&nbsp;MB)</a> &middot;
+          <a href="assets/slides-modules.pdf" target="_blank" rel="noopener">Modules 1 to 5 (PDF, 7.8&nbsp;MB)</a>
+        </p>
+        <div class="slide-tabs" role="tablist">
+          <button type="button" role="tab" aria-selected="true" data-src="assets/slides-introduction.pdf">Introduction</button>
+          <button type="button" role="tab" aria-selected="false" data-src="assets/slides-modules.pdf">Modules 1 to 5</button>
+        </div>
+        <iframe class="slide-viewer" src="assets/slides-introduction.pdf" title="Tutorial slides"></iframe>
       </div>
       <div class="material-card">
         <h4>Channel Data</h4>
         <p>Two representative channel files, archived on Zenodo under <a href="https://doi.org/10.5281/zenodo.21287414" target="_blank" rel="noopener">doi:10.5281/zenodo.21287414</a>. We will announce which two ahead of the event. Please download them before the tutorial.</p>
         <p><a href="https://zenodo.org/communities/uwa-channels" target="_blank" rel="noopener">Zenodo: UWA Channels</a></p>
       </div>
-      <div class="material-card" style="grid-column:1 / -1;">
+      <div class="material-card">
         <h4>Toolboxes</h4>
         <p>The MATLAB and Python toolboxes, and the <code>estimate</code> repository used in Module 5.</p>
         <p>
@@ -558,10 +577,6 @@
           <a href="https://github.com/uwa-channels/estimate" target="_blank" rel="noopener">estimate</a>
         </p>
       </div>
-    </div>
-
-    <div class="info-box" style="margin-top:28px;">
-      <p><strong>After the tutorial:</strong> All materials (slides, templates, reference solutions, and a recording of the live demonstrations, if one is made) will be archived here and remain freely available.</p>
     </div>
   </div>
 </section>
@@ -645,6 +660,17 @@ cd matlab</pre>
     <p style="margin-top:12px;opacity:.6;">&copy; 2026 Underwater Acoustic Channel Library</p>
   </div>
 </footer>
+
+<script>
+  document.querySelectorAll('.slide-tabs button').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.slide-tabs button').forEach(function (t) {
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      document.querySelector('.slide-viewer').src = tab.dataset.src;
+    });
+  });
+</script>
 
 </body>
 </html>
